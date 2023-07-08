@@ -1,10 +1,10 @@
 from tkinter import *
+from tkinter import messagebox
 
 
 class DragDropLabel(object):
-    def __init__(self, text, bg):
+    def __init__(self, text):
         self.text = str(text)
-        self.bg = bg
 
         def labelpress(event):
             setattr(label, 'start_x', event.x)
@@ -15,9 +15,11 @@ class DragDropLabel(object):
             dx = event.x - getattr(label, 'start_x', 0)
             dy = event.y - getattr(label, 'start_y', 0)
             label.place(x=label.winfo_x() + dx, y=label.winfo_y() + dy)
+            print(str(label.winfo_x())+" "+str(label.winfo_y()))
+            canvas.create_line((0, 0, label.winfo_x(), label.winfo_y()), width=2, fill='blue')
 
         area = 4  # value must be even
-        label = Label(canvas, text=self.text, bg=self.bg, height=int(area/2), width=area)
+        label = Label(canvas, text=self.text, bg="green", height=int(area / 2), width=area)
         label.place(x=5, y=5)
         label.bind("<ButtonPress-1>", labelpress)
         label.bind("<B1-Motion>", labelmotion)
@@ -25,11 +27,16 @@ class DragDropLabel(object):
 
 
 def spawn():
-    entrylist[0].get()
-    entrylist[1].get()
-    entrylist[2].get()
+    if entrylist[0].get() == "" or entrylist[1].get() == "" or entrylist[2].get() == "":
+        messagebox.showwarning("Missing Information")
+    else:
+        DragDropLabel(entrylist[0].get())
+        DragDropLabel(entrylist[1].get())
+        entrylist[2].get()
+        for j in entrylist:
+            j.delete(0, END)
     print("clicked")
-    
+
 
 nodelist = []
 entrylist = []
@@ -61,12 +68,11 @@ weight.place(x=1000, y=65)
 
 for i in range(3):
     entry = Entry(canvas, width=12, font=("raleway", 11))
-    entry.place(x=1100, y=5+y)
+    entry.place(x=1100, y=5 + y)
     y += 30
     entrylist.append(entry)
 
 spawnbutton = Button(canvas, text="Add Edge", command=spawn)
 spawnbutton.place(x=1000, y=95)
-
 
 root.mainloop()
