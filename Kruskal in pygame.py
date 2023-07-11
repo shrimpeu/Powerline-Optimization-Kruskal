@@ -115,6 +115,7 @@ while running:
         endentry.events(event)
         weightentry.events(event)
 
+    # properties being drawn in a loop
     sourceentry.draw(screen)
     endentry.draw(screen)
     weightentry.draw(screen)
