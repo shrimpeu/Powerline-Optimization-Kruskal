@@ -1,7 +1,7 @@
 # if pygame module does not exist currently
 # go to command prompt and type
 # pip install pygame
-# to convert to .exe file, go to command prompt and type
+# to convert to .exe file, go to command prompt and type (method 1)
 # pip install pyinstaller
 # go to the directory where this .py file is located
 # type cmd at the address bar, press enter, then type
@@ -9,7 +9,7 @@
 # after conversion the .exe file will be located at the folder named 'dist' and get it out of that folder
 # additional folder named 'build' will be there as well and it can be deleted along with 'dist'
 # try running the exe file
-# using auto py to exe --------
+# using auto py to exe (method 2)
 # pip install auto-py-to-exe
 # CMD, type "auto-py-to-exe", hit enter
 # then just browse the .py file you want converted and icon, if there is any
@@ -17,12 +17,12 @@ import pygame
 
 
 class MyEntry(object):
-    def __init__(self, string, fontstyle, fontsize, bool, color_text, color_bg, x, y, width, height, active_color,
+    def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, x, y, width, height, active_color,
                  inactive_color, borderwidth, borderradius):
         self.string = string
         self.fontstyle = fontstyle
         self.fontsize = fontsize
-        self.bool = bool
+        self.bool = boolean
         self.color_text = color_text
         self.color_bg = color_bg
         self.x = x
@@ -38,19 +38,16 @@ class MyEntry(object):
 
     def events(self, event):
         if self.x <= mousepos[0] <= self.x + self.width and self.y <= mousepos[1] <= self.y + self.height:
-            # Change the button's color when hovering over the button
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_IBEAM)
             if event.type == pygame.MOUSEBUTTONDOWN and self.active_state is False:
                 self.active_state = True  # active object
                 self.stringsize = 0
                 self.string = ""
                 print(self.active_state)
         else:
-            # Reset the button's color when the mouse is not hovering over it
+            # Reset the entry's color when the mouse is not hovering over it
             if event.type == pygame.MOUSEBUTTONDOWN and self.active_state is True:
                 self.active_state = False  # inactive object
                 print(self.active_state)
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
         # pressing keyboard down
         if event.type == pygame.KEYDOWN and self.active_state is True:
@@ -82,12 +79,12 @@ class MyEntry(object):
 
 
 class MyButton(object):
-    def __init__(self, string, fontstyle, fontsize, bool, color_text, color_bg, x, y, width, height,
-                 active_color, inactive_color, command):
+    def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, x, y, width, height, active_color,
+                 inactive_color, command):
         self.string = string
         self.fontstyle = fontstyle
         self.fontsize = fontsize
-        self.bool = bool
+        self.bool = boolean
         self.color_text = color_text
         self.color_bg = color_bg
         self.x = x
@@ -96,11 +93,31 @@ class MyButton(object):
         self.height = height
         self.active_color = active_color
         self.inactive_color = inactive_color
-        self.font = pygame.font.SysFont(self.fontstyle, self.fontsize)
-        self.text = self.font.render(self.string, self.bool, self.color_text, self.color_bg)
-        self.textRect = self.text.get_rect()
-        self.textRect.center = (self.x + self.width // 2, self.y + self.height // 2)
+        self.active_state = False
         self.command = command
+
+    def events(self, event):
+        if self.x <= mousepos[0] <= self.x + self.width and self.y <= mousepos[1] <= self.y + self.height:
+            if event.type == pygame.MOUSEBUTTONDOWN and self.active_state is False:
+                # Change the button's color when clicking the button
+                self.active_state = True
+                print("click")
+        if event.type == pygame.MOUSEBUTTONUP and self.active_state is True:
+            # returning the button's color when releasing the mouseclick
+            self.active_state = False
+            print("wtf")
+
+    def draw(self, screen):
+        font = pygame.font.SysFont(self.fontstyle, self.fontsize)
+        text = font.render(self.string, self.bool, self.color_text, self.color_bg)
+        textrect = text.get_rect()
+        textrect.center = (self.x + self.width // 2, self.y + self.height // 2)
+        if self.active_state is True:
+            button_color = self.active_color
+        else:
+            button_color = self.inactive_color
+        pygame.draw.rect(screen, button_color, (self.x, self.y, self.width, self.height))
+        screen.blit(text, textrect)
 
 
 class MyNode(object):
@@ -113,13 +130,16 @@ class MyNode(object):
     pass
 
 
-def eventhandler(event):  # event handling
+def eventhandler(event):  # event handling, this is needed for objects to detect certain events happening in the UI
     sourceentry.events(event)
     endentry.events(event)
     weightentry.events(event)
+    addedgebutton.events(event)
+
 
 def addedge():
     print("Button press")
+
 
 mousemovementpos = ()
 mouseclickpos = ()
@@ -129,21 +149,24 @@ sourceentry = MyEntry('source', 'monospace', 30, True, (255, 255, 255), None, 11
                       (100, 100, 100), 2, 0)
 endentry = MyEntry('end', 'monospace', 30, True, (255, 255, 255), None, 1100, 75, 125, 35, (175, 175, 175),
                    (100, 100, 100), 2, 0)
-weightentry = MyEntry('weight', 'monospace', 30, True, (255, 255, 255), None, 1100, 75+55, 125, 35, (175, 175, 175),
+weightentry = MyEntry('weight', 'monospace', 30, True, (255, 255, 255), None, 1100, 130, 125, 35, (175, 175, 175),
                       (100, 100, 100), 2, 0)
+addedgebutton = MyButton('Add Edge', 'monospace', 20, True, (255, 255, 255), None, 1100, 185, 125, 35, (175, 175, 175),
+                      (100, 100, 100), addedge)
 
 
-pygame.init()  # root = Tk() root.mainloop
+pygame.init()
 screen = pygame.display.set_mode((1250, 750))
 running = True
 while running:
     screen.fill((255, 255, 255))
     mousepos = pygame.mouse.get_pos()
-
+    
     # properties being drawn in a loop
     sourceentry.draw(screen)
     endentry.draw(screen)
     weightentry.draw(screen)
+    addedgebutton.draw(screen)
 
     for event in pygame.event.get():
         eventhandler(event)
@@ -159,5 +182,5 @@ while running:
             # print("click detected")
         '''
 
-    #pygame.draw.line(screen, (50, 50, 50), (0, 0), mousemovementpos)
+    # pygame.draw.line(screen, (50, 50, 50), (0, 0), mousemovementpos)
     pygame.display.update()
