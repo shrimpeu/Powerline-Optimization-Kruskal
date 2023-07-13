@@ -42,12 +42,12 @@ class MyEntry(object):
                 self.active_state = True  # active object
                 self.stringsize = 0
                 self.string = ""
-                print(self.active_state)
+                # print(self.active_state)
         else:
             # Reset the entry's color when the mouse is not hovering over it
             if event.type == pygame.MOUSEBUTTONDOWN and self.active_state is True:
                 self.active_state = False  # inactive object
-                print(self.active_state)
+                # print(self.active_state)
 
         # pressing keyboard down
         if event.type == pygame.KEYDOWN and self.active_state is True:
@@ -57,7 +57,7 @@ class MyEntry(object):
             if event.unicode.isnumeric() and self.stringsize < 5:  # numerical inputs only
                 self.string += event.unicode
                 self.stringsize += 1
-            print(self.string)
+            # print(self.string)
 
     def draw(self, screen):
         font = pygame.font.SysFont(self.fontstyle, self.fontsize)
@@ -101,11 +101,14 @@ class MyButton(object):
             if event.type == pygame.MOUSEBUTTONDOWN and self.active_state is False:
                 # Change the button's color when clicking the button
                 self.active_state = True
-                print("click")
+                # print("buttondown")
         if event.type == pygame.MOUSEBUTTONUP and self.active_state is True:
             # returning the button's color when releasing the mouseclick
+            self.command()
+            sourceentry.string = "source"
+            endentry.string = "end"
+            weightentry.string = "weight"
             self.active_state = False
-            print("wtf")
 
     def draw(self, screen):
         font = pygame.font.SysFont(self.fontstyle, self.fontsize)
@@ -121,13 +124,15 @@ class MyButton(object):
 
 
 class MyNode(object):
-    def __init__(self, xpos, ypos, radius, color):
-        self.xpos = xpos
-        self.ypos = ypos
+    def __init__(self, x, y, radius, color):
+        self.x = x
+        self.y = y
         self.radius = radius
         self.color = color
-        # pygame.draw.circle()
-    pass
+
+    def draw(self, win):
+        pygame.draw.circle(win, (0, 0, 0), (self.x, self.y), self.radius)  # black outline of the ball
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.radius - 1)  # bg of ball
 
 
 def eventhandler(event):  # event handling, this is needed for objects to detect certain events happening in the UI
@@ -138,13 +143,21 @@ def eventhandler(event):  # event handling, this is needed for objects to detect
 
 
 def addedge():
-    print("Button press")
+    if sourceentry.string.isnumeric() and endentry.string.isnumeric() and weightentry.string.isnumeric():
+        print(sourceentry.string)
+        print(endentry.string)
+        print(weightentry.string)
+        graph.append([sourceentry.string, endentry.string, weightentry.string])
+        print(graph)
+    # print("Button press")
 
 
 mousemovementpos = ()
 mouseclickpos = ()
 
-# classes needed to be called once and it's properties to be drawn in a loop
+# classes needed to be called once and its properties to be drawn in a loop
+# this is important so that we can change the value of attributes of a class
+# because if these objects are inside the loop it will be harder to change the value of the attributes
 sourceentry = MyEntry('source', 'monospace', 30, True, (255, 255, 255), None, 1100, 20, 125, 35, (175, 175, 175),
                       (100, 100, 100), 2, 0)
 endentry = MyEntry('end', 'monospace', 30, True, (255, 255, 255), None, 1100, 75, 125, 35, (175, 175, 175),
@@ -152,8 +165,9 @@ endentry = MyEntry('end', 'monospace', 30, True, (255, 255, 255), None, 1100, 75
 weightentry = MyEntry('weight', 'monospace', 30, True, (255, 255, 255), None, 1100, 130, 125, 35, (175, 175, 175),
                       (100, 100, 100), 2, 0)
 addedgebutton = MyButton('Add Edge', 'monospace', 20, True, (255, 255, 255), None, 1100, 185, 125, 35, (175, 175, 175),
-                      (100, 100, 100), addedge)
+                         (100, 100, 100), addedge)
 
+graph = []
 
 pygame.init()
 screen = pygame.display.set_mode((1250, 750))
@@ -161,7 +175,7 @@ running = True
 while running:
     screen.fill((255, 255, 255))
     mousepos = pygame.mouse.get_pos()
-    
+
     # properties being drawn in a loop
     sourceentry.draw(screen)
     endentry.draw(screen)
