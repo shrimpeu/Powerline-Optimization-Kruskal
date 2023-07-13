@@ -166,7 +166,8 @@ def eventhandler(event):  # event handling, this is needed for objects to detect
     endentry.events(event)
     weightentry.events(event)
     addedgebutton.events(event)
-    sourcenode.events(event)
+    for nodes in nodeobjslist:
+        nodes.events(event)
 
 
 def addedge():
@@ -176,6 +177,12 @@ def addedge():
         print(weightentry.string)
         graph.append([sourceentry.string, endentry.string, weightentry.string])
         print(graph)
+
+        sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 0, 255), None, (75, 75), 25, (0, 0, 0))
+        nodeobjslist.append(sourcenode)
+        endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 0, 255), None, (200, 75), 25, (0, 0, 0))
+        nodeobjslist.append(endnode)
+
     # print("Button press")
 
 
@@ -190,8 +197,8 @@ weightentry = MyEntry('weight', 'monospace', 30, True, (255, 255, 255), None, 11
                       (100, 100, 100), 2, 0)
 addedgebutton = MyButton('Add Edge', 'monospace', 20, True, (255, 255, 255), None, 1100, 185, 125, 35, (175, 175, 175),
                          (100, 100, 100), addedge)
-sourcenode = MyNode('1', 'monospace', 25, True, (255, 0, 255), None, (75, 75), 25, (0, 0, 0))
 
+nodeobjslist = []
 graph = []
 MST = []
 parent = []
@@ -209,11 +216,12 @@ while running:
     endentry.draw(screen)
     weightentry.draw(screen)
     addedgebutton.draw(screen)
-    sourcenode.draw(screen)
+
+    for nodes in nodeobjslist:
+        nodes.draw(screen)
 
     for event in pygame.event.get():
         eventhandler(event)
-        print(event)
         if event.type == pygame.QUIT:
             exit()
 
