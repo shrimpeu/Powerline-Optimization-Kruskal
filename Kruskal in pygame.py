@@ -36,16 +36,16 @@ class MyEntry(object):
         self.active_state = False
         self.stringsize = 0
 
-    def events(self, event):
+    def events(self, event):  # event.button == 1 is left click
         if self.x <= mousepos[0] <= self.x + self.width and self.y <= mousepos[1] <= self.y + self.height:
-            if event.type == pygame.MOUSEBUTTONDOWN and self.active_state is False:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.active_state is False:
                 self.active_state = True  # active object
                 self.stringsize = 0
                 self.string = ""
                 # print(self.active_state)
-        else:
+        else:  # event.button == 1 is left click
             # Reset the entry's color when the mouse is not hovering over it
-            if event.type == pygame.MOUSEBUTTONDOWN and self.active_state is True:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.active_state is True:
                 self.active_state = False  # inactive object
                 # print(self.active_state)
 
@@ -98,8 +98,8 @@ class MyButton(object):
 
     def events(self, event):
         if self.x <= mousepos[0] <= self.x + self.width and self.y <= mousepos[1] <= self.y + self.height:
-            if event.type == pygame.MOUSEBUTTONDOWN and self.active_state is False:
-                # Change the button's color when clicking the button
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.active_state is False:
+                # Change the button's color when clicking the button, event.button == 1 is left click
                 self.active_state = True
                 # print("buttondown")
         if event.type == pygame.MOUSEBUTTONUP and self.active_state is True:
@@ -140,7 +140,7 @@ class MyNode(object):
 
     def events(self, event):  # drag and drop of a circular object
         distance = ((self.pos[0] - mousepos[0]) ** 2 + (self.pos[1] - mousepos[1]) ** 2) ** 0.5
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: # event.button == 1 is left click
             if distance < self.radius:
                 self.mouseclickhold = True
                 self.offset_x = mousepos[0] - self.pos[0]
@@ -213,6 +213,7 @@ while running:
 
     for event in pygame.event.get():
         eventhandler(event)
+        print(event)
         if event.type == pygame.QUIT:
             exit()
 
