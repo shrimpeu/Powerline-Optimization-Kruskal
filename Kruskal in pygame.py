@@ -124,15 +124,41 @@ class MyButton(object):
 
 
 class MyNode(object):
-    def __init__(self, x, y, radius, color):
-        self.x = x
-        self.y = y
+    def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, pos, radius, color):
+        self.string = string
+        self.fontstyle = fontstyle
+        self.fontsize = fontsize
+        self.boolean = boolean
+        self.color_text = color_text
+        self.color_bg = color_bg
+        self.pos = pos
         self.radius = radius
         self.color = color
+        self.mouseclickhold = False
+        self.offset_x = 0
+        self.offset_y = 0
+
+    def events(self, event):  # drag and drop of a circular object
+        distance = ((self.pos[0] - mousepos[0]) ** 2 + (self.pos[1] - mousepos[1]) ** 2) ** 0.5
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if distance < self.radius:
+                self.mouseclickhold = True
+                self.offset_x = mousepos[0] - self.pos[0]
+                self.offset_y = mousepos[1] - self.pos[1]
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.mouseclickhold = False
+        elif event.type == pygame.MOUSEMOTION:
+            if self.mouseclickhold is True:
+                self.pos = (mousepos[0] - self.offset_x, mousepos[1] - self.offset_y)
 
     def draw(self, win):
-        pygame.draw.circle(win, (0, 0, 0), (self.x, self.y), self.radius)  # black outline of the ball
-        pygame.draw.circle(win, self.color, (self.x, self.y), self.radius - 1)  # bg of ball
+        pygame.draw.circle(win, (0, 0, 0), (self.pos[0], self.pos[1]), self.radius)  # black outline of the ball
+        pygame.draw.circle(win, self.color, (self.pos[0], self.pos[1]), self.radius - 1)  # bg of ball
+        font = pygame.font.SysFont(self.fontstyle, self.fontsize)
+        text = font.render(str(self.string), self.boolean, self.color_text, self.color_bg)
+        textrect = text.get_rect()
+        textrect.center = (self.pos[0], self.pos[1])
+        screen.blit(text, textrect)
 
 
 def eventhandler(event):  # event handling, this is needed for objects to detect certain events happening in the UI
@@ -140,6 +166,7 @@ def eventhandler(event):  # event handling, this is needed for objects to detect
     endentry.events(event)
     weightentry.events(event)
     addedgebutton.events(event)
+    sourcenode.events(event)
 
 
 def addedge():
@@ -152,9 +179,6 @@ def addedge():
     # print("Button press")
 
 
-mousemovementpos = ()
-mouseclickpos = ()
-
 # classes needed to be called once and its properties to be drawn in a loop
 # this is important so that we can change the value of attributes of a class
 # because if these objects are inside the loop it will be harder to change the value of the attributes
@@ -166,8 +190,12 @@ weightentry = MyEntry('weight', 'monospace', 30, True, (255, 255, 255), None, 11
                       (100, 100, 100), 2, 0)
 addedgebutton = MyButton('Add Edge', 'monospace', 20, True, (255, 255, 255), None, 1100, 185, 125, 35, (175, 175, 175),
                          (100, 100, 100), addedge)
+sourcenode = MyNode('1', 'monospace', 25, True, (255, 0, 255), None, (75, 75), 25, (0, 0, 0))
 
 graph = []
+MST = []
+parent = []
+rank = []
 
 pygame.init()
 screen = pygame.display.set_mode((1250, 750))
@@ -181,20 +209,11 @@ while running:
     endentry.draw(screen)
     weightentry.draw(screen)
     addedgebutton.draw(screen)
+    sourcenode.draw(screen)
 
     for event in pygame.event.get():
         eventhandler(event)
         if event.type == pygame.QUIT:
             exit()
-        '''
-        if event.type == pygame.MOUSEMOTION:
-            mousemovementpos = pygame.mouse.get_pos()
-            # print("motion detected")
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouseclickpos = pygame.mouse.get_pos()
-            # print(mouseclickpos)
-            # print("click detected")
-        '''
 
-    # pygame.draw.line(screen, (50, 50, 50), (0, 0), mousemovementpos)
     pygame.display.update()
