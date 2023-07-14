@@ -15,7 +15,6 @@
 # then just browse the .py file you want converted and icon, if there is any
 import pygame
 
-
 class MyEntry(object):
     def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, x, y, width, height, active_color,
                  inactive_color, borderwidth, borderradius):
@@ -323,6 +322,6 @@ while running:
     for event in pygame.event.get():
         eventhandler(event)
         if event.type == pygame.QUIT:
-            exit()
+            pygame.quit()
 
     pygame.display.update()
