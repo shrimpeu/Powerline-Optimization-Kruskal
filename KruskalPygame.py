@@ -14,6 +14,8 @@
 # CMD, type "auto-py-to-exe", hit enter
 # then just browse the .py file you want converted and icon, if there is any
 import pygame
+from sys import exit
+
 
 class MyEntry(object):
     def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, x, y, width, height, active_color,
@@ -266,7 +268,6 @@ def kruskalsalgorithm():
     MSTUI = MST
 
 
-
 # classes needed to be called once and its properties to be drawn in a loop
 # this is important so that we can change the value of attributes of a class
 # because if these objects are inside the loop it will be harder to change the value of the attributes
@@ -322,6 +323,7 @@ while running:
     for event in pygame.event.get():
         eventhandler(event)
         if event.type == pygame.QUIT:
-            pygame.quit()
+            exit()
 
     pygame.display.update()
+    
