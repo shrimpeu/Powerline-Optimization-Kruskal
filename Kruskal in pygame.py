@@ -166,24 +166,106 @@ def eventhandler(event):  # event handling, this is needed for objects to detect
     endentry.events(event)
     weightentry.events(event)
     addedgebutton.events(event)
+    createmstbutton.events(event)
     for nodes in edgeobjslist:
         for node in nodes:
             node.events(event)
 
 
 def addedge():
+    global sourcenode, endnode
     if sourceentry.string.isnumeric() and endentry.string.isnumeric() and weightentry.string.isnumeric():
-        print(sourceentry.string)
-        print(endentry.string)
-        print(weightentry.string)
-        graph.append([sourceentry.string, endentry.string, weightentry.string])
-        print(graph)
+        inputgraph.append([int(sourceentry.string), int(endentry.string), int(weightentry.string)])
 
-        sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 0, 255), None, (75, 75), 25, (0, 0, 0))
-        endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 0, 255), None, (200, 75), 25, (0, 0, 0))
+        if sourceentry.string not in nodenames:
+            nodenames.append(sourceentry.string)
+            sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 0, 255), None, (75, 75), 25, (0, 0, 0))
+        else:
+            for nodes in edgeobjslist:
+                for node in nodes:
+                    if sourceentry.string == node.string:
+                        sourcenode = node
+
+        if endentry.string not in nodenames:
+            nodenames.append(endentry.string)
+            endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 0, 255), None, (200, 75), 25, (0, 0, 0))
+        else:
+            for nodes in edgeobjslist:
+                for node in nodes:
+                    if endentry.string == node.string:
+                        endnode = node
+
         edgeobjslist.append([sourcenode, endnode])
+        print(inputgraph)
 
     # print("Button press")
+
+
+def kruskalsalgorithm():
+    global MSTUI
+    def find(parent, i):  # this recursive function is used to find the parent of a node
+        if parent[i] != i:
+            parent[i] = find(parent, parent[i])
+        return parent[i]
+        # if the condition returned true, it means that the specific node is not its own parent anymore because it was, initially
+        # its parent is a different node now
+        # the use of the statement below is to check if the parent of the node that was inserted before the recursion have a parent or not
+        # observe that the argument that was passed is the parent of the node known as 'parent[i]', that was inserted before the recursion which is 'i'
+        # using this recursion we can find the respective parents OR parents of parents OR... of the nodes in our graph
+
+    graph = inputgraph
+    MST = []
+    parent = []
+    rank = []
+    cost = 0
+    V = []  # creating a list for vertices/nodes
+
+    for edge in graph:  # counting every unique edges in the graph
+        if not edge[0] in V:
+            V.append(edge[0])
+        if not edge[1] in V:
+            V.append(edge[1])
+
+    V.sort()
+    print(V)
+
+    graph = sorted(graph, key=lambda item: item[2])  # function to sort the list of edges by weight
+    print(graph)
+
+    for node in range(len(V)):
+        parent.append(node)  # listing the parent in a list
+        rank.append(0)  # assigning parents to the nodes which is initially their parents are themselves
+
+    i = 0
+    j = 0
+    while i < len(V) - 1:
+        u, v, w = graph[j]  # getting the inputs one by one
+
+        x = find(parent, u)  # finding the parent of the source node using recursion
+        y = find(parent, v)  # finding the parent of the destination node using recursion
+        # see information above
+
+        #  finding their respective parents is essential because it will tell us if the edge that we picked will create a loop
+        #  so, nodes MUST have different parent, otherwise the edge will be omitted
+        if x != y:
+            i += 1
+            MST.append([u, v, w])
+            if rank[x] < rank[y]:  # performing union by rank to decide who will be the parent of who
+                parent[x] = y
+            elif rank[x] > rank[y]:
+                parent[y] = x
+            else:
+                parent[y] = x
+                rank[x] += 1
+        j += 1
+
+    for u, v, weight in MST:
+        cost += weight
+        print("%d -- %d == %d" % (u, v, weight))
+    print("Total Weight of Edges", cost)
+    print(MST)
+    MSTUI = MST
+
 
 
 # classes needed to be called once and its properties to be drawn in a loop
@@ -197,14 +279,18 @@ weightentry = MyEntry('weight', 'monospace', 30, True, (255, 255, 255), None, 11
                       (100, 100, 100), 2, 0)
 addedgebutton = MyButton('Add Edge', 'monospace', 20, True, (255, 255, 255), None, 1100, 185, 125, 35, (175, 175, 175),
                          (100, 100, 100), addedge)
+createmstbutton = MyButton('Create MST', 'monospace', 15, True, (255, 255, 255), None, 1100, 240, 125, 35, (175, 175, 175),
+                         (100, 100, 100), kruskalsalgorithm)
 
 # the same idea applies here in nodeobsjlist we need to create this outside the loop and add objects only once
 # then we just have to draw every object inside this list in a loop
 edgeobjslist = []
-graph = []
-MST = []
-parent = []
-rank = []
+nodenames = []
+inputgraph = []
+MSTUI = []
+sourcenode = object
+endnode = object
+MSTcreated = False
 
 pygame.init()
 screen = pygame.display.set_mode((1250, 750))
@@ -218,13 +304,21 @@ while running:
     endentry.draw(screen)
     weightentry.draw(screen)
     addedgebutton.draw(screen)
+    createmstbutton.draw(screen)
 
     for nodes in edgeobjslist:
         pygame.draw.line(screen, (0, 255, 255), nodes[0].pos, nodes[1].pos, 5)
         for node in nodes:
             node.draw(screen)
 
+    if MSTcreated is True:
+        pass
+        # create a for loop accessing every MyNode class, we need to get the position of the existing nodes to be reused in the MST
+
+
     # maybe draw another set of lines with different color to represent the MST
+    # there is already an existing graph list and we can append now, we can solve the graph as well using the kruskal's algorithm
+    # theory: draw the nodes again but this time get the values from the MST which was the output of kruskal's algorithm
 
     for event in pygame.event.get():
         eventhandler(event)
