@@ -166,8 +166,9 @@ def eventhandler(event):  # event handling, this is needed for objects to detect
     endentry.events(event)
     weightentry.events(event)
     addedgebutton.events(event)
-    for nodes in nodeobjslist:
-        nodes.events(event)
+    for nodes in edgeobjslist:
+        for node in nodes:
+            node.events(event)
 
 
 def addedge():
@@ -179,9 +180,8 @@ def addedge():
         print(graph)
 
         sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 0, 255), None, (75, 75), 25, (0, 0, 0))
-        nodeobjslist.append(sourcenode)
         endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 0, 255), None, (200, 75), 25, (0, 0, 0))
-        nodeobjslist.append(endnode)
+        edgeobjslist.append([sourcenode, endnode])
 
     # print("Button press")
 
@@ -198,7 +198,9 @@ weightentry = MyEntry('weight', 'monospace', 30, True, (255, 255, 255), None, 11
 addedgebutton = MyButton('Add Edge', 'monospace', 20, True, (255, 255, 255), None, 1100, 185, 125, 35, (175, 175, 175),
                          (100, 100, 100), addedge)
 
-nodeobjslist = []
+# the same idea applies here in nodeobsjlist we need to create this outside the loop and add objects only once
+# then we just have to draw every object inside this list in a loop
+edgeobjslist = []
 graph = []
 MST = []
 parent = []
@@ -217,8 +219,12 @@ while running:
     weightentry.draw(screen)
     addedgebutton.draw(screen)
 
-    for nodes in nodeobjslist:
-        nodes.draw(screen)
+    for nodes in edgeobjslist:
+        pygame.draw.line(screen, (0, 255, 255), nodes[0].pos, nodes[1].pos, 5)
+        for node in nodes:
+            node.draw(screen)
+
+    # maybe draw another set of lines with different color to represent the MST
 
     for event in pygame.event.get():
         eventhandler(event)
