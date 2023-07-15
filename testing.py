@@ -193,7 +193,7 @@ def addedge():
                         endnode = node
 
         edgeobjslist.append([sourcenode, endnode])
-        edgeobjsliststring.append([int(sourceentry.string), int(endentry.string)])
+        edgeobjsliststring.append([int(sourcenode.string), int(endnode.string)])
         print(edgeobjsliststring)
 
 
@@ -258,6 +258,7 @@ def kruskalsalgorithm():
         cost += weight
     print("Total Weight of Edges", cost)
     MSTUI = MST
+    print(MSTUI)
     MSTcreated = True
 
 
@@ -301,10 +302,11 @@ while running:
     addedgebutton.draw(screen)
     createmstbutton.draw(screen)
 
-    for nodes in edgeobjslist:
-        pygame.draw.line(screen, (0, 255, 255), nodes[0].pos, nodes[1].pos, 5)
-        for node in nodes:
-            node.draw(screen)
+    if MSTcreated is False:
+        for nodes in edgeobjslist:
+            pygame.draw.line(screen, (0, 255, 255), nodes[0].pos, nodes[1].pos, 5)
+            for node in nodes:
+                node.draw(screen)
 
     '''if MSTcreated is True:
         for edge in MSTUI:
@@ -319,6 +321,29 @@ while running:
                 if i < len(edgeobjslist):
                     pygame.draw.line(screen, (0, 255, 0), edgeobjslist[i][0].pos, edgeobjslist[i][1].pos, 5)
             i += 1'''
+
+    nodepos = []
+    '''if MSTcreated is True:
+        i = 0
+        for edge in MSTUI:
+            if [edge[0], edge[1]] in edgeobjsliststring:
+                if i < len(edgeobjslist):
+                    nodepos.append([edgeobjslist[i][0].pos, edgeobjslist[i][1].pos])  # the problem is here
+            i += 1'''
+
+    if MSTcreated is True:
+        for i in range(len(edgeobjsliststring)):
+            for j in range(len(MSTUI)):
+                if [MSTUI[j][0], MSTUI[j][1]] == edgeobjsliststring[i]:
+                    if i < len(edgeobjslist):
+                        nodepos.append([edgeobjslist[i][0].pos, edgeobjslist[i][1].pos])  # the problem is here
+
+
+        for pos in nodepos:
+            pygame.draw.line(screen, (0, 255, 0), pos[0], pos[1], 5)
+        for nodes in edgeobjslist:
+            for node in nodes:
+                node.draw(screen)
 
         # save the edgeobjslist[i][0].pos, edgeobjslist[i][1].pos instead in a new list then access it again passing it on as an arguments
         # on pygame.draw.line() function
