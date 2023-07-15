@@ -16,7 +16,7 @@
 import pygame
 from sys import exit
 
-
+# Entry field where the user can input text
 class MyEntry(object):
     def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, x, y, width, height, active_color,
                  inactive_color, borderwidth, borderradius):
@@ -57,7 +57,7 @@ class MyEntry(object):
                 self.string += event.unicode
                 self.stringsize += 1
 
-    def draw(self, screen):
+    def draw(self, screen): # Drawing the entry field on the screen
         font = pygame.font.SysFont(self.fontstyle, self.fontsize)
         text = font.render(str(self.string), self.bool, self.color_text, self.color_bg)
         textrect = text.get_rect()
@@ -75,7 +75,7 @@ class MyEntry(object):
                          self.borderradius)
         screen.blit(text, textrect)
 
-
+# Button that the user can click
 class MyButton(object):
     def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, x, y, width, height, active_color,
                  inactive_color, command):
@@ -107,7 +107,7 @@ class MyButton(object):
             weightentry.string = "weight"
             self.active_state = False
 
-    def draw(self, screen):
+    def draw(self, screen): # Drawing the button field on the screen
         font = pygame.font.SysFont(self.fontstyle, self.fontsize)
         text = font.render(self.string, self.bool, self.color_text, self.color_bg)
         textrect = text.get_rect()
@@ -148,7 +148,7 @@ class MyNode(object):
             if self.mouseclickhold is True:
                 self.pos = (mousepos[0] - self.offset_x, mousepos[1] - self.offset_y)
 
-    def draw(self, win):
+    def draw(self, win): # Drawing the nodes on the screen
         pygame.draw.circle(win, (0, 0, 0), (self.pos[0], self.pos[1]), self.radius)  # black outline of the ball
         pygame.draw.circle(win, self.color, (self.pos[0], self.pos[1]), self.radius - 1)  # bg of ball
         font = pygame.font.SysFont(self.fontstyle, self.fontsize, True)
@@ -207,7 +207,7 @@ def kruskalsalgorithm():
         return parent[i]
         # if the condition returned true, it means that the specific node is not its own parent anymore because it was, initially
         # its parent is a different node now
-        # the use of the statement below is to check if the parent of the node that was inserted before the recursion have a parent or not
+        # the use of the statement below is to check if the parent of the node that was inserted before the recursion has a parent or not
         # observe that the argument that was passed is the parent of the node known as 'parent[i]', that was inserted before the recursion which is 'i'
         # using this recursion we can find the respective parents OR parents of parents OR... of the nodes in our graph
 
