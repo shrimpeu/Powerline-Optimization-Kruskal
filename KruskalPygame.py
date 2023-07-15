@@ -43,12 +43,10 @@ class MyEntry(object):
                 self.active_state = True  # active object
                 self.stringsize = 0
                 self.string = ""
-                # print(self.active_state)
         else:  # event.button == 1 is left click
             # Reset the entry's color when the mouse is not hovering over it
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.active_state is True:
                 self.active_state = False  # inactive object
-                # print(self.active_state)
 
         # pressing keyboard down
         if event.type == pygame.KEYDOWN and self.active_state is True:
@@ -58,7 +56,6 @@ class MyEntry(object):
             if event.unicode.isnumeric() and self.stringsize < 5:  # numerical inputs only
                 self.string += event.unicode
                 self.stringsize += 1
-            # print(self.string)
 
     def draw(self, screen):
         font = pygame.font.SysFont(self.fontstyle, self.fontsize)
@@ -102,7 +99,6 @@ class MyButton(object):
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.active_state is False:
                 # Change the button's color when clicking the button, event.button == 1 is left click
                 self.active_state = True
-                # print("buttondown")
         if event.type == pygame.MOUSEBUTTONUP and self.active_state is True:
             # returning the button's color when releasing the mouseclick
             self.command()
@@ -155,7 +151,7 @@ class MyNode(object):
     def draw(self, win):
         pygame.draw.circle(win, (0, 0, 0), (self.pos[0], self.pos[1]), self.radius)  # black outline of the ball
         pygame.draw.circle(win, self.color, (self.pos[0], self.pos[1]), self.radius - 1)  # bg of ball
-        font = pygame.font.SysFont(self.fontstyle, self.fontsize)
+        font = pygame.font.SysFont(self.fontstyle, self.fontsize, True)
         text = font.render(str(self.string), self.boolean, self.color_text, self.color_bg)
         textrect = text.get_rect()
         textrect.center = (self.pos[0], self.pos[1])
@@ -180,7 +176,7 @@ def addedge():
 
         if sourceentry.string not in nodenames:
             nodenames.append(sourceentry.string)
-            sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 0, 255), None, (75, 75), 25, (0, 0, 0))
+            sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 255, 255), None, (75, 75), 25, (0, 0, 0))
         else:
             for nodes in edgeobjslist:
                 for node in nodes:
@@ -189,7 +185,7 @@ def addedge():
 
         if endentry.string not in nodenames:
             nodenames.append(endentry.string)
-            endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 0, 255), None, (200, 75), 25, (0, 0, 0))
+            endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 255, 255), None, (200, 75), 25, (0, 0, 0))
         else:
             for nodes in edgeobjslist:
                 for node in nodes:
@@ -197,13 +193,14 @@ def addedge():
                         endnode = node
 
         edgeobjslist.append([sourcenode, endnode])
-        print(inputgraph)
+        edgeobjsliststring.append([int(sourcenode.string), int(endnode.string)])
+        print(edgeobjsliststring)
 
-    # print("Button press")
 
 
 def kruskalsalgorithm():
     global MSTUI
+    global MSTcreated
     def find(parent, i):  # this recursive function is used to find the parent of a node
         if parent[i] != i:
             parent[i] = find(parent, parent[i])
@@ -228,10 +225,7 @@ def kruskalsalgorithm():
             V.append(edge[1])
 
     V.sort()
-    print(V)
-
     graph = sorted(graph, key=lambda item: item[2])  # function to sort the list of edges by weight
-    print(graph)
 
     for node in range(len(V)):
         parent.append(node)  # listing the parent in a list
@@ -262,10 +256,10 @@ def kruskalsalgorithm():
 
     for u, v, weight in MST:
         cost += weight
-        print("%d -- %d == %d" % (u, v, weight))
     print("Total Weight of Edges", cost)
-    print(MST)
     MSTUI = MST
+    print(MSTUI)
+    MSTcreated = True
 
 
 # classes needed to be called once and its properties to be drawn in a loop
@@ -285,12 +279,14 @@ createmstbutton = MyButton('Create MST', 'monospace', 15, True, (255, 255, 255),
 # the same idea applies here in nodeobsjlist we need to create this outside the loop and add objects only once
 # then we just have to draw every object inside this list in a loop
 edgeobjslist = []
+edgeobjsliststring = []
 nodenames = []
 inputgraph = []
 MSTUI = []
 sourcenode = object
 endnode = object
 MSTcreated = False
+i = 0
 
 pygame.init()
 screen = pygame.display.set_mode((1250, 750))
@@ -306,19 +302,57 @@ while running:
     addedgebutton.draw(screen)
     createmstbutton.draw(screen)
 
-    for nodes in edgeobjslist:
-        pygame.draw.line(screen, (0, 255, 255), nodes[0].pos, nodes[1].pos, 5)
-        for node in nodes:
-            node.draw(screen)
+    if MSTcreated is False:
+        for nodes in edgeobjslist:
+            pygame.draw.line(screen, (0, 255, 255), nodes[0].pos, nodes[1].pos, 5)
+            for node in nodes:
+                node.draw(screen)
+
+    '''if MSTcreated is True:
+        for edge in MSTUI:
+            if ([edge[0], edge[1]] or [edge[1], edge[0]]) in edgeobjsliststring:
+                pygame.draw.line(screen, (0, 255, 0), edgeobjslist[i][0].pos, edgeobjslist[i][1].pos, 5)
+        if i <= len(MSTUI):
+            i += 1'''
+
+    '''if MSTcreated is True:
+        for edge in MSTUI:
+            if ([edge[0], edge[1]] or [edge[1], edge[0]]) in edgeobjsliststring:
+                if i < len(edgeobjslist):
+                    pygame.draw.line(screen, (0, 255, 0), edgeobjslist[i][0].pos, edgeobjslist[i][1].pos, 5)
+            i += 1'''
+
+    nodepos = []
+    '''if MSTcreated is True:
+        i = 0
+        for edge in MSTUI:
+            if [edge[0], edge[1]] in edgeobjsliststring:
+                if i < len(edgeobjslist):
+                    nodepos.append([edgeobjslist[i][0].pos, edgeobjslist[i][1].pos])  # the problem is here
+            i += 1'''
 
     if MSTcreated is True:
-        pass
-        # create a for loop accessing every MyNode class, we need to get the position of the existing nodes to be reused in the MST
+        for i in range(len(edgeobjsliststring)):
+            for j in range(len(MSTUI)):
+                if [MSTUI[j][0], MSTUI[j][1]] == edgeobjsliststring[i]:
+                    if i < len(edgeobjslist):
+                        nodepos.append([edgeobjslist[i][0].pos, edgeobjslist[i][1].pos])  # the problem is here
 
+
+        for pos in nodepos:
+            pygame.draw.line(screen, (0, 255, 0), pos[0], pos[1], 5)
+        for nodes in edgeobjslist:
+            for node in nodes:
+                node.draw(screen)
+
+        # save the edgeobjslist[i][0].pos, edgeobjslist[i][1].pos instead in a new list then access it again passing it on as an arguments
+        # on pygame.draw.line() function
+        # create a for loop accessing every MyNode class, we need to get the position of the existing nodes to be reused in the MST
 
     # maybe draw another set of lines with different color to represent the MST
     # there is already an existing graph list and we can append now, we can solve the graph as well using the kruskal's algorithm
     # theory: draw the nodes again but this time get the values from the MST which was the output of kruskal's algorithm
+    # get the positions of the nodes that exist in MST and inputgraph
 
     for event in pygame.event.get():
         eventhandler(event)
@@ -326,4 +360,3 @@ while running:
             exit()
 
     pygame.display.update()
-    
