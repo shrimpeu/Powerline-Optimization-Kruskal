@@ -12,11 +12,11 @@
 # using auto py to exe (method 2)
 # pip install auto-py-to-exe
 # CMD, type "auto-py-to-exe", hit enter
-# then just browse the .py file you want converted and icon, if there is any
+# then just browse the .py file you want converted and icon if there is any
 import pygame
 from sys import exit
 
-# Entry field where the user can input text
+
 class MyEntry(object):
     def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, x, y, width, height, active_color,
                  inactive_color, borderwidth, borderradius):
@@ -53,11 +53,11 @@ class MyEntry(object):
             if event.key == pygame.K_BACKSPACE and self.stringsize > 0:
                 self.string = self.string[:-1]
                 self.stringsize -= 1
-            if event.unicode.isnumeric() and self.stringsize < 5:  # numerical inputs only
+            if event.unicode.isnumeric() and self.stringsize < 5:  # numerical inputs only up to 5 inputs
                 self.string += event.unicode
                 self.stringsize += 1
 
-    def draw(self, screen): # Drawing the entry field on the screen
+    def draw(self, screen):
         font = pygame.font.SysFont(self.fontstyle, self.fontsize)
         text = font.render(str(self.string), self.bool, self.color_text, self.color_bg)
         textrect = text.get_rect()
@@ -75,7 +75,7 @@ class MyEntry(object):
                          self.borderradius)
         screen.blit(text, textrect)
 
-# Button that the user can click
+
 class MyButton(object):
     def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, x, y, width, height, active_color,
                  inactive_color, command):
@@ -107,7 +107,7 @@ class MyButton(object):
             weightentry.string = "weight"
             self.active_state = False
 
-    def draw(self, screen): # Drawing the button field on the screen
+    def draw(self, screen):
         font = pygame.font.SysFont(self.fontstyle, self.fontsize)
         text = font.render(self.string, self.bool, self.color_text, self.color_bg)
         textrect = text.get_rect()
@@ -148,13 +148,42 @@ class MyNode(object):
             if self.mouseclickhold is True:
                 self.pos = (mousepos[0] - self.offset_x, mousepos[1] - self.offset_y)
 
-    def draw(self, win): # Drawing the nodes on the screen
+    def draw(self, win):
         pygame.draw.circle(win, (0, 0, 0), (self.pos[0], self.pos[1]), self.radius)  # black outline of the ball
         pygame.draw.circle(win, self.color, (self.pos[0], self.pos[1]), self.radius - 1)  # bg of ball
         font = pygame.font.SysFont(self.fontstyle, self.fontsize, True)
         text = font.render(str(self.string), self.boolean, self.color_text, self.color_bg)
         textrect = text.get_rect()
         textrect.center = (self.pos[0], self.pos[1])
+        screen.blit(text, textrect)
+
+
+class MyLabel(object):
+    def __init__(self, string, fontstyle, fontsize, boolean, color_text, color_bg, x, y, width, height, borderwidth,
+                 borderradius):
+        self.string = string
+        self.fontstyle = fontstyle
+        self.fontsize = fontsize
+        self.bool = boolean
+        self.color_text = color_text
+        self.color_bg = color_bg
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.borderwidth = borderwidth
+        self.borderradius = borderradius
+
+    def draw(self, screen):
+        font = pygame.font.SysFont(self.fontstyle, self.fontsize)
+        text = font.render(str(self.string), self.bool, self.color_text, self.color_bg)
+        textrect = text.get_rect()
+        textrect.center = (self.x + self.width // 2, self.y + self.height // 2)
+        # background
+        pygame.draw.rect(screen, (255, 255, 255), (self.x, self.y, self.width, self.height), 0, self.borderradius)
+        # outline
+        pygame.draw.rect(screen, (0, 0, 0), (self.x, self.y, self.width, self.height), self.borderwidth,
+                         self.borderradius)
         screen.blit(text, textrect)
 
 
@@ -176,7 +205,7 @@ def addedge():
 
         if sourceentry.string not in nodenames:
             nodenames.append(sourceentry.string)
-            sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 255, 255), None, (75, 75), 25, (0, 0, 0))
+            sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 255, 255), None, (75, 75), 15, (0, 0, 0))
         else:
             for nodes in edgeobjslist:
                 for node in nodes:
@@ -185,7 +214,7 @@ def addedge():
 
         if endentry.string not in nodenames:
             nodenames.append(endentry.string)
-            endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 255, 255), None, (200, 75), 25, (0, 0, 0))
+            endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 255, 255), None, (200, 75), 15, (0, 0, 0))
         else:
             for nodes in edgeobjslist:
                 for node in nodes:
@@ -193,21 +222,21 @@ def addedge():
                         endnode = node
 
         edgeobjslist.append([sourcenode, endnode])
-        edgeobjsliststring.append([int(sourcenode.string), int(endnode.string)])
+        edgeobjsliststring.append([int(sourcenode.string), int(endnode.string), int(weightentry.string)])
         print(edgeobjsliststring)
-
 
 
 def kruskalsalgorithm():
     global MSTUI
     global MSTcreated
+    global cost
     def find(parent, i):  # this recursive function is used to find the parent of a node
         if parent[i] != i:
             parent[i] = find(parent, parent[i])
         return parent[i]
         # if the condition returned true, it means that the specific node is not its own parent anymore because it was, initially
         # its parent is a different node now
-        # the use of the statement below is to check if the parent of the node that was inserted before the recursion has a parent or not
+        # the use of the statement below is to check if the parent of the node that was inserted before the recursion have a parent or not
         # observe that the argument that was passed is the parent of the node known as 'parent[i]', that was inserted before the recursion which is 'i'
         # using this recursion we can find the respective parents OR parents of parents OR... of the nodes in our graph
 
@@ -256,7 +285,8 @@ def kruskalsalgorithm():
 
     for u, v, weight in MST:
         cost += weight
-    print("Total Weight of Edges", cost)
+
+    print(f"Total weight: {cost}")
     MSTUI = MST
     print(MSTUI)
     MSTcreated = True
@@ -275,6 +305,7 @@ addedgebutton = MyButton('Add Edge', 'monospace', 20, True, (255, 255, 255), Non
                          (100, 100, 100), addedge)
 createmstbutton = MyButton('Create MST', 'monospace', 15, True, (255, 255, 255), None, 1100, 240, 125, 35, (175, 175, 175),
                          (100, 100, 100), kruskalsalgorithm)
+totalweight = MyLabel('Total Weight', 'monospace', 15, True, (0, 0, 0), None, 1100, 650, 150, 100, 5, 0)
 
 # the same idea applies here in nodeobsjlist we need to create this outside the loop and add objects only once
 # then we just have to draw every object inside this list in a loop
@@ -286,13 +317,20 @@ MSTUI = []
 sourcenode = object
 endnode = object
 MSTcreated = False
+cost = int
 i = 0
 
 pygame.init()
+
 screen = pygame.display.set_mode((1250, 750))
+pygame.display.set_caption("Powerline Optimization")
+icon = pygame.image.load('kruskalicon.ico')
+pygame.display.set_icon(icon)
+
 running = True
 while running:
-    screen.fill((255, 255, 255))
+    screen.fill((250, 243, 240))
+
     mousepos = pygame.mouse.get_pos()
 
     # properties being drawn in a loop
@@ -301,58 +339,30 @@ while running:
     weightentry.draw(screen)
     addedgebutton.draw(screen)
     createmstbutton.draw(screen)
+    totalweight.draw(screen)
 
-    if MSTcreated is False:
-        for nodes in edgeobjslist:
-            pygame.draw.line(screen, (0, 255, 255), nodes[0].pos, nodes[1].pos, 5)
-            for node in nodes:
-                node.draw(screen)
-
-    '''if MSTcreated is True:
-        for edge in MSTUI:
-            if ([edge[0], edge[1]] or [edge[1], edge[0]]) in edgeobjsliststring:
-                pygame.draw.line(screen, (0, 255, 0), edgeobjslist[i][0].pos, edgeobjslist[i][1].pos, 5)
-        if i <= len(MSTUI):
-            i += 1'''
-
-    '''if MSTcreated is True:
-        for edge in MSTUI:
-            if ([edge[0], edge[1]] or [edge[1], edge[0]]) in edgeobjsliststring:
-                if i < len(edgeobjslist):
-                    pygame.draw.line(screen, (0, 255, 0), edgeobjslist[i][0].pos, edgeobjslist[i][1].pos, 5)
-            i += 1'''
+    for nodes in edgeobjslist:
+        pygame.draw.line(screen, (255, 0, 0), nodes[0].pos, nodes[1].pos, 5)
+        for node in nodes:
+            node.draw(screen)
 
     nodepos = []
-    '''if MSTcreated is True:
-        i = 0
-        for edge in MSTUI:
-            if [edge[0], edge[1]] in edgeobjsliststring:
-                if i < len(edgeobjslist):
-                    nodepos.append([edgeobjslist[i][0].pos, edgeobjslist[i][1].pos])  # the problem is here
-            i += 1'''
-
     if MSTcreated is True:
         for i in range(len(edgeobjsliststring)):
             for j in range(len(MSTUI)):
-                if [MSTUI[j][0], MSTUI[j][1]] == edgeobjsliststring[i]:
+                if [MSTUI[j][0], MSTUI[j][1]] == [edgeobjsliststring[i][0], edgeobjsliststring[i][1]]:
                     if i < len(edgeobjslist):
-                        nodepos.append([edgeobjslist[i][0].pos, edgeobjslist[i][1].pos])  # the problem is here
-
+                        nodepos.append([edgeobjslist[i][0].pos, edgeobjslist[i][1].pos])  # access the edgeobjsliststring[i][2], use the nodepos to put th text in the middle of the lines
 
         for pos in nodepos:
             pygame.draw.line(screen, (0, 255, 0), pos[0], pos[1], 5)
+
         for nodes in edgeobjslist:
             for node in nodes:
                 node.draw(screen)
 
-        # save the edgeobjslist[i][0].pos, edgeobjslist[i][1].pos instead in a new list then access it again passing it on as an arguments
-        # on pygame.draw.line() function
-        # create a for loop accessing every MyNode class, we need to get the position of the existing nodes to be reused in the MST
-
-    # maybe draw another set of lines with different color to represent the MST
-    # there is already an existing graph list and we can append now, we can solve the graph as well using the kruskal's algorithm
-    # theory: draw the nodes again but this time get the values from the MST which was the output of kruskal's algorithm
-    # get the positions of the nodes that exist in MST and inputgraph
+        totalweight.string = cost
+        totalweight.fontsize = 30
 
     for event in pygame.event.get():
         eventhandler(event)
