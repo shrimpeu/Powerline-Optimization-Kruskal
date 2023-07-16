@@ -269,7 +269,7 @@ def kruskalsalgorithm():
         y = find(parent, v)  # finding the parent of the destination node using recursion
         # see information above
 
-        #  finding their respective parents is essential because it will tell us if the edge that we picked will create a loop
+        #  finding their respective parents is essential because it will tell us if the edge that we picked will create a cycle
         #  so, nodes MUST have different parent, otherwise the edge will be omitted
         if x != y:
             i += 1
