@@ -205,7 +205,7 @@ def addedge():
 
         if sourceentry.string not in nodenames:
             nodenames.append(sourceentry.string)
-            sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 255, 255), None, (75, 75), 15, (0, 0, 0))
+            sourcenode = MyNode(sourceentry.string, 'monospace', 25, True, (255, 255, 255), None, (75, 75), 10, (0, 0, 0))
         else:
             for nodes in edgeobjslist:
                 for node in nodes:
@@ -214,7 +214,7 @@ def addedge():
 
         if endentry.string not in nodenames:
             nodenames.append(endentry.string)
-            endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 255, 255), None, (200, 75), 15, (0, 0, 0))
+            endnode = MyNode(endentry.string, 'monospace', 25, True, (255, 255, 255), None, (200, 75), 10, (0, 0, 0))
         else:
             for nodes in edgeobjslist:
                 for node in nodes:
@@ -269,7 +269,7 @@ def kruskalsalgorithm():
         y = find(parent, v)  # finding the parent of the destination node using recursion
         # see information above
 
-        #  finding their respective parents is essential because it will tell us if the edge that we picked will create a cycle
+        #  finding their respective parents is essential because it will tell us if the edge that we picked will create a loop
         #  so, nodes MUST have different parent, otherwise the edge will be omitted
         if x != y:
             i += 1
@@ -320,6 +320,7 @@ MSTcreated = False
 cost = int
 i = 0
 
+
 pygame.init()
 
 screen = pygame.display.set_mode((1250, 750))
@@ -330,7 +331,7 @@ pygame.display.set_icon(icon)
 running = True
 while running:
     screen.fill((250, 243, 240))
-
+    screen.blit(pygame.image.load('proposedlines (1).png').convert_alpha(), (0, 0))
     mousepos = pygame.mouse.get_pos()
 
     # properties being drawn in a loop
@@ -368,5 +369,8 @@ while running:
         eventhandler(event)
         if event.type == pygame.QUIT:
             exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            print(mousepos)
+
 
     pygame.display.update()
